@@ -221,7 +221,7 @@ def up(
         # for the first time; otherwise it is a name conflict.
         # Since the controller may be shared among multiple users, launch the
         # controller with the API server's user hash.
-        with common.with_server_user_hash():
+        with common.with_server_user():
             with skypilot_config.local_active_workspace_ctx(
                     constants.SKYPILOT_DEFAULT_WORKSPACE):
                 controller_job_id, controller_handle = execution.launch(
@@ -297,6 +297,8 @@ def up(
             assert task.service is not None
             protocol = ('http'
                         if task.service.tls_credential is None else 'https')
+            socket_endpoint = socket_endpoint.replace('https://', '').replace(
+                'http://', '')
             endpoint = f'{protocol}://{socket_endpoint}'
 
         logger.info(
@@ -716,6 +718,9 @@ def status(
             else:
                 protocol = ('https'
                             if service_record['tls_encrypted'] else 'http')
+                if endpoint is not None:
+                    endpoint = endpoint.replace('https://',
+                                                '').replace('http://', '')
                 service_record['endpoint'] = f'{protocol}://{endpoint}'
 
     return service_records
